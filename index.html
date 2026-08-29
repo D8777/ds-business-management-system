@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DS Business Management System — Pricing, Quotes & Estimates</title>
+<style>
+  :root{
+    --bg:#0b0c11;--panel:#151821;--text:#f4f5f7;--muted:#a7adba;--border:#2a2f3d;
+    --purple:#8b5cf6;--gold:#d6b15f;--green:#4ade80;--yellow:#facc15;--red:#fb7185;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:linear-gradient(180deg,#090a0e,#11131a 45%,#090a0e);color:var(--text);min-height:100vh}
+  .wrap{max-width:1450px;margin:auto;padding:26px 18px 70px}
+  .top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}
+  .brand h1{margin:0;font-size:30px;letter-spacing:-.03em}
+  .brand p{margin:8px 0 0;color:var(--muted);max-width:850px}
+  .badge{border:1px solid rgba(214,177,95,.35);background:rgba(214,177,95,.08);color:#efd18e;padding:8px 12px;border-radius:999px;font-size:12px;white-space:nowrap}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+  .tab{background:#1b1f2a;border:1px solid var(--border);color:#dfe3eb;padding:10px 13px;border-radius:11px;cursor:pointer;font-weight:700}
+  .tab.active{background:var(--purple);border-color:var(--purple);color:white}
+  .view{display:none}.view.active{display:block}
+  .grid2{display:grid;grid-template-columns:1.08fr .92fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .card{background:rgba(21,24,33,.97);border:1px solid var(--border);border-radius:18px;padding:19px;box-shadow:0 12px 38px rgba(0,0,0,.2)}
+  .card h2{margin:0 0 14px;font-size:18px}.card h3{margin:18px 0 10px;font-size:14px}
+  .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.full{grid-column:1/-1}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input,select,textarea{width:100%;background:#0f1218;color:var(--text);border:1px solid var(--border);border-radius:11px;padding:11px 12px;font-size:14px;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--purple)} textarea{min-height:80px;resize:vertical}
+  .preset{padding:14px;border:1px solid var(--border);border-radius:14px;background:#11141b;cursor:pointer}
+  .preset:hover{border-color:#50566a}.preset.active{border-color:var(--purple);box-shadow:0 0 0 1px var(--purple) inset}
+  .preset strong{display:block;font-size:14px}.preset span{display:block;color:#d8bc79;font-weight:800;margin-top:4px}
+  .preset small{display:block;color:var(--muted);margin-top:5px;line-height:1.4}
+  .feature-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .feature{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:11px;border:1px solid var(--border);border-radius:12px;background:#11141a}
+  .feature input{width:18px;height:18px}.feature .name{font-size:13px;font-weight:700}.feature .sub{font-size:11px;color:var(--muted);margin-top:2px}.feature .adds{text-align:right;font-size:11px;color:#d9c18b;white-space:nowrap}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}
+  .metric{background:linear-gradient(180deg,#1c202c,#141720);border:1px solid var(--border);border-radius:14px;padding:14px}
+  .metric .k{font-size:11px;color:var(--muted)}.metric .v{font-size:23px;font-weight:800;margin-top:5px}.metric small{display:block;margin-top:3px;color:var(--muted)}
+  .purple{color:#b59cff}.gold{color:#edd08f}.green{color:var(--green)}
+  .row{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #272c38;padding:9px 0;font-size:13px}.row:last-child{border:0}.row span{color:#cdd1da}
+  .monthly-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .month-card{border:1px solid var(--border);border-radius:13px;padding:13px;background:#11141a}.month-card strong{font-size:13px}.month-card span{display:block;color:#e8cb8b;font-weight:800;margin-top:4px}.month-card small{color:var(--muted);display:block;margin-top:5px;line-height:1.35}
+  .switchrow{display:flex;gap:8px;align-items:center;margin-top:9px;font-size:12px}.switchrow input{width:18px;height:18px}
+  .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+  button{border:0;border-radius:11px;padding:10px 13px;font-weight:800;cursor:pointer}
+  .primary{background:var(--purple);color:#fff}.secondary{background:#222735;color:#e8eaf0;border:1px solid #323848}.danger{background:#2c141a;color:#ffc3cd;border:1px solid #57232d}
+  .status{margin-top:12px;padding:12px;border-radius:11px;border:1px solid var(--border);font-size:13px;line-height:1.45}
+  .status.good{background:#0e1812;border-color:#275e39;color:#baf5cc}.status.warn{background:#19160b;border-color:#5b4d19;color:#ffef9f}.status.bad{background:#1d1014;border-color:#682937;color:#ffc1cd}
+  .help{color:var(--muted);font-size:11px;line-height:1.5;margin-top:7px}
+  .paper{background:white;color:#111827;border-radius:16px;padding:28px;min-height:720px}
+  .paperhead{display:flex;justify-content:space-between;gap:25px;border-bottom:2px solid #111827;padding-bottom:16px;margin-bottom:20px}
+  .paper h1{font-size:28px;margin:0}.paper h2{font-size:20px;margin:18px 0 8px}.paper .muted{color:#667085}.paper table{width:100%;border-collapse:collapse;margin:20px 0}.paper th,.paper td{padding:11px 8px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px}.paper th:last-child,.paper td:last-child{text-align:right}
+  .paper .total{font-size:28px;font-weight:900;text-align:right;margin-top:18px}.paper .monthly{font-size:16px;font-weight:800;text-align:right;color:#5b21b6;margin-top:6px}.paper .terms{margin-top:22px;font-size:12px;line-height:1.6;color:#4b5563}.paper .scope{font-size:13px;line-height:1.6}
+  .history table{width:100%;border-collapse:collapse;font-size:12px}.history th,.history td{padding:10px 8px;border-bottom:1px solid #292e3a;text-align:left}.history th{color:var(--muted)}
+  .empty{color:var(--muted);padding:16px 0}
+  @media(max-width:1050px){.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}.monthly-grid{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){.formgrid,.feature-list,.grid3,.monthly-grid,.metrics{grid-template-columns:1fr}.top,.paperhead{flex-direction:column}}
+  @media print{
+    body{background:#fff}.top,.tabs,#builder,.history,.noprint{display:none!important}.wrap{max-width:none;padding:0}.view{display:block!important}.card{border:0;box-shadow:none;padding:0}.paper{border-radius:0;padding:12mm}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <h1>DS Business Management System</h1>
+      <p>Pricing calculator, recurring services, customer estimates, deposits and saved quote history. Working copy autosaves in this browser so a refresh does not wipe the current estimate.</p>
+    </div>
+    <div class="badge" id="saveBadge">Autosave on</div>
+  </div>
+
+  <div class="tabs noprint">
+    <button class="tab active" onclick="showTab('builder',this)">Pricing Builder</button>
+    <button class="tab" onclick="showTab('estimate',this)">Customer Estimate</button>
+    <button class="tab" onclick="showTab('history',this)">Saved Estimates</button>
+  </div>
+
+  <div id="builder" class="view active">
+    <div class="grid2">
+      <div class="card">
+        <h2>1. Core DS Service</h2>
+        <div class="grid3" id="presetGrid"></div>
+
+        <h3>Client & Project</h3>
+        <div class="formgrid">
+          <div><label>Client / Business Name</label><input id="client" placeholder="ABC Detailing"></div>
+          <div><label>Customer Email</label><input id="customerEmail" type="email" placeholder="owner@example.com"></div>
+          <div><label>Customer Phone</label><input id="customerPhone" placeholder="Optional"></div>
+          <div><label>Project Name</label><input id="project" placeholder="Website + Lead System"></div>
+          <div><label>Target Productive Rate ($/hr)</label><input id="rate" type="number" value="200" min="0" step="10"></div>
+          <div><label>Estimated Base Hours</label><input id="hours" type="number" value="15" min="0" step=".5"></div>
+        </div>
+
+        <h3>2. Add Features</h3>
+        <div class="feature-list" id="featureList"></div>
+
+        <h3>3. Internal Infrastructure Costs</h3>
+        <div class="formgrid">
+          <div><label>Supabase / Infrastructure</label><input id="supabase" type="number" value="25" min="0"></div>
+          <div><label>n8n / Automation</label><input id="n8n" type="number" value="25" min="0"></div>
+          <div><label>AI / Coding Tools</label><input id="aiTools" type="number" value="50" min="0"></div>
+          <div><label>Email / API</label><input id="emailApi" type="number" value="25" min="0"></div>
+          <div><label>General Overhead Allocation</label><input id="overhead" type="number" value="75" min="0"></div>
+          <div><label>Other Direct Costs</label><input id="direct" type="number" value="0" min="0"></div>
+          <div><label>Risk / Revision Buffer</label><input id="buffer" type="number" value="300" min="0"></div>
+          <div><label>Extra Desired Profit</label><input id="extraProfit" type="number" value="0" min="0" step="50"></div>
+          <div><label>Quote Rounding</label><select id="rounding"><option value="50">$50</option><option value="100" selected>$100</option><option value="250">$250</option><option value="500">$500</option></select></div>
+          <div><label>Manual Price Override</label><input id="override" type="number" min="0" placeholder="Optional"></div>
+        </div>
+        <div class="help">These are private internal costs. They are not itemized to the customer.</div>
+
+        <h3>4. Monthly Service</h3>
+        <div class="monthly-grid" id="monthlyGrid"></div>
+        <div class="formgrid" style="margin-top:12px">
+          <div><label>Monthly Price Override</label><input id="monthlyOverride" type="number" min="0" placeholder="Optional"></div>
+          <div><label>One-Time Setup / Onboarding</label><input id="setupFee" type="number" value="0" min="0"></div>
+        </div>
+
+        <h3>5. Estimate Terms</h3>
+        <div class="formgrid">
+          <div><label>Estimate Number</label><input id="estimateNo"></div>
+          <div><label>Estimate Date</label><input id="estimateDate" type="date"></div>
+          <div><label>Valid Until</label><input id="validUntil" type="date"></div>
+          <div><label>Deposit %</label><input id="depositPct" type="number" value="50" min="0" max="100"></div>
+          <div><label>Delivery Window</label><input id="delivery" value="14 calendar days"></div>
+          <div><label>Included Revision Rounds</label><input id="revisions" type="number" value="2" min="0"></div>
+          <div class="full"><label>Scope / What Client Gets</label><textarea id="scope">Modernized website, clear services, mobile-first experience, lead capture, launch setup, and selected features below.</textarea></div>
+          <div class="full"><label>Customer Notes</label><textarea id="notes">Project timeline begins after deposit, required content, access, branding materials, and approvals are received. Delayed client feedback or scope changes may extend the delivery window.</textarea></div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="saveEstimate()">Save Estimate</button>
+          <button class="secondary" onclick="goEstimate()">Preview Estimate</button>
+          <button class="secondary" onclick="resetAll()">New Estimate</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Automated Pricing Result</h2>
+        <div class="metrics">
+          <div class="metric"><div class="k">Recommended Price</div><div class="v purple" id="mQuote">$0</div><small>Customer investment</small></div>
+          <div class="metric"><div class="k">Labor Value</div><div class="v" id="mLabor">$0</div><small>Hours × productive rate</small></div>
+          <div class="metric"><div class="k">Internal Costs</div><div class="v gold" id="mCosts">$0</div><small>Software + overhead + buffer</small></div>
+          <div class="metric"><div class="k">Effective $ / Hr</div><div class="v green" id="mEffective">$0</div><small>Quote ÷ estimated hours</small></div>
+        </div>
+        <div class="row"><span>Core service range</span><strong id="rRange">—</strong></div>
+        <div class="row"><span>Total estimated hours</span><strong id="rHours">0h</strong></div>
+        <div class="row"><span>Labor value</span><strong id="rLabor">$0</strong></div>
+        <div class="row"><span>Supabase / infrastructure</span><strong id="rSupabase">$0</strong></div>
+        <div class="row"><span>n8n / automation</span><strong id="rN8n">$0</strong></div>
+        <div class="row"><span>AI / coding allocation</span><strong id="rAi">$0</strong></div>
+        <div class="row"><span>Email / API allocation</span><strong id="rEmail">$0</strong></div>
+        <div class="row"><span>Other overhead / costs</span><strong id="rOther">$0</strong></div>
+        <div class="row"><span>Risk / revision buffer</span><strong id="rBuffer">$0</strong></div>
+        <div class="row"><span>Feature value add</span><strong id="rFeatureValue">$0</strong></div>
+        <div class="row"><span>Raw internal target</span><strong id="rRaw">$0</strong></div>
+        <div class="row"><span>Configured service floor</span><strong id="rFloor">$0</strong></div>
+        <div class="row"><span><strong>Final estimate</strong></span><strong id="rFinal">$0</strong></div>
+        <div class="row"><span>Deposit due</span><strong id="rDeposit">$0</strong></div>
+        <div class="row"><span>Monthly service</span><strong id="rMonthly">$0/mo</strong></div>
+        <div id="status" class="status"></div>
+        <div class="help" style="margin-top:14px">The customer-facing estimate does not expose your private labor calculation, AI subscriptions, Supabase allocation or internal margin formula. The current working copy is saved automatically in this browser.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="estimate" class="view">
+    <div class="card">
+      <div class="paper" id="estimatePaper">
+        <div class="paperhead">
+          <div>
+            <h1>ESTIMATE</h1>
+            <div><strong>DS Automations</strong></div>
+            <div class="muted">Your Business Is My Business</div>
+          </div>
+          <div style="text-align:right">
+            <div><strong id="eNo"></strong></div>
+            <div class="muted" id="eDate"></div>
+            <div class="muted" id="eValid"></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px">
+          <div>
+            <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.08em">Prepared For</div>
+            <strong id="eClient">Prospective Client</strong>
+            <div id="eEmail" class="muted"></div>
+            <div id="ePhone" class="muted"></div>
+          </div>
+          <div>
+            <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.08em">Project</div>
+            <strong id="eProject">Project</strong>
+          </div>
+        </div>
+
+        <h2 id="eService">Website + Lead System / Basic CRM</h2>
+        <p class="scope" id="eScope"></p>
+
+        <table>
+          <thead><tr><th>Service / Included Item</th><th>Price</th></tr></thead>
+          <tbody id="eItems"></tbody>
+        </table>
+
+        <div class="total" id="eTotal">$0</div>
+        <div class="monthly" id="eMonthly"></div>
+
+        <div class="terms">
+          <strong>Payment & Project Terms</strong><br>
+          <span id="eTerms"></span>
+        </div>
+        <div class="terms" id="eNotes"></div>
+      </div>
+
+      <div class="actions noprint">
+        <button class="primary" onclick="window.print()">Print / Save PDF</button>
+        <button class="secondary" onclick="emailEstimate()">Email Estimate</button>
+        <button class="secondary" onclick="copyEstimateText()">Copy Estimate Text</button>
+        <button class="secondary" onclick="showTab('builder',document.querySelectorAll('.tab')[0])">Back to Builder</button>
+      </div>
+      <div class="help noprint">“Email Estimate” opens your default email app with the customer's address, subject and estimate text filled in. Attach the PDF manually if you saved one.</div>
+    </div>
+  </div>
+
+  <div id="history" class="view">
+    <div class="card history">
+      <h2>Saved Estimates</h2>
+      <div id="historyWrap"></div>
+      <div class="actions">
+        <button class="secondary" onclick="exportCSV()">Export CSV</button>
+        <button class="danger" onclick="clearHistory()">Clear Saved Estimates</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const FIELD_IDS=['client','customerEmail','customerPhone','project','rate','hours','supabase','n8n','aiTools','emailApi','overhead','direct','buffer','extraProfit','rounding','override','monthlyOverride','setupFee','estimateNo','estimateDate','validUntil','depositPct','delivery','revisions','scope','notes'];
+const DRAFT_KEY='dsEstimateDraft';
+const HISTORY_KEY='dsEstimates';
+const presets=[
+{id:'refresh',name:'Website Refresh / Modernization',range:'$1,500–$2,500',min:1500,max:2500,hours:10,infra:{supabase:0,n8n:0,aiTools:40,emailApi:0,overhead:60,buffer:250},desc:'Modern website refresh, service clarity, mobile usability and core search structure.'},
+{id:'leadcrm',name:'Website + Lead System / Basic CRM',range:'$2,500–$4,000',min:2500,max:4000,hours:15,infra:{supabase:25,n8n:25,aiTools:50,emailApi:25,overhead:75,buffer:300},desc:'Website plus lead capture, simple CRM fields and basic automation.'},
+{id:'portal',name:'Custom Customer Portal / CRM MVP',range:'$5,000–$8,000',min:5000,max:8000,hours:30,infra:{supabase:100,n8n:100,aiTools:100,emailApi:75,overhead:150,buffer:500},desc:'Custom Supabase-backed portal / CRM MVP with authentication and workflows.'},
+{id:'fullcrm',name:'Full Custom CRM',range:'$8,000–$15,000+',min:8000,max:15000,hours:45,infra:{supabase:150,n8n:175,aiTools:150,emailApi:100,overhead:250,buffer:800},desc:'Deeper custom CRM with workflows, permissions, dashboards and business logic.'},
+{id:'aiassistant',name:'AI Website Assistant',range:'+$1,500–$3,000',min:1500,max:3000,hours:8,infra:{supabase:25,n8n:50,aiTools:75,emailApi:50,overhead:50,buffer:250},desc:'Standalone AI website assistant or add-on implementation.'},
+{id:'agent',name:'Advanced AI Agent',range:'+$3,000–$7,500+',min:3000,max:7500,hours:18,infra:{supabase:75,n8n:100,aiTools:125,emailApi:100,overhead:100,buffer:400},desc:'Advanced agentic workflow with integrations, actions and automation.'}
+];
+const features=[
+{id:'supabaseDB',name:'Supabase Database',sub:'Structured cloud database',hours:2,cost:25,value:200},
+{id:'auth',name:'Customer Login / Authentication',sub:'Sign-in and protected views',hours:4,cost:20,value:500},
+{id:'admin',name:'Admin Dashboard',sub:'Internal management interface',hours:5,cost:20,value:700},
+{id:'leadcrmF',name:'Lead CRM',sub:'Lead records, statuses and contact data',hours:4,cost:25,value:500},
+{id:'portalF',name:'Customer Portal',sub:'Client-facing account area',hours:7,cost:40,value:900},
+{id:'uploads',name:'File Uploads / Storage',sub:'Documents, photos or records',hours:3,cost:30,value:350},
+{id:'emails',name:'Automated Emails',sub:'Confirmations and workflow emails',hours:2,cost:25,value:250},
+{id:'n8nF',name:'n8n Workflows',sub:'Workflow automation',hours:3,cost:25,value:400},
+{id:'aiWebsite',name:'AI Website Assistant',sub:'Conversational website assistant',hours:8,cost:100,value:1500},
+{id:'advancedAgent',name:'Advanced AI Agent',sub:'Actions and multi-step automation',hours:18,cost:250,value:3000},
+{id:'sms',name:'SMS Integration',sub:'Text alerts and follow-up',hours:3,cost:50,value:400},
+{id:'calendar',name:'Calendar / Booking',sub:'Appointments or scheduling',hours:4,cost:40,value:500},
+{id:'analytics',name:'Analytics + Search Console',sub:'Measurement and indexing setup',hours:2,cost:0,value:200},
+{id:'aeogeo',name:'AEO / GEO Setup',sub:'AI/search-ready business structure',hours:4,cost:0,value:500},
+{id:'revision',name:'Additional Revision Round',sub:'One extra revision cycle',hours:2,cost:0,value:300}
+];
+const monthlyPlans=[
+{id:'none',name:'No Monthly Plan',range:'$0',default:0,desc:'Project-only pricing.'},
+{id:'care',name:'Website Care',range:'$75–$150/mo',default:125,desc:'Basic maintenance and updates.'},
+{id:'automation',name:'Website + Automation',range:'$150–$300/mo',default:225,desc:'Website care plus workflow monitoring.'},
+{id:'portalmanage',name:'CRM / Portal Management',range:'$250–$500/mo',default:375,desc:'Ongoing CRM / portal management.'},
+{id:'crmai',name:'CRM + AI',range:'$350–$750+/mo',default:550,desc:'CRM management plus AI / automation oversight.'}
+];
+
+let selectedPreset='leadcrm',selectedMonthly='none',draftTimer=null,skipAutosave=false;
+const $=id=>document.getElementById(id);
+const n=id=>parseFloat($(id).value)||0;
+const money=v=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(v)||0);
+const roundUp=(v,s)=>Math.ceil(v/s)*s;
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+function addDays(dateStr,days){const d=new Date(dateStr+'T12:00:00');d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
+function formatDate(s){if(!s)return'';return new Date(s+'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}
+function newEstimateNo(){return 'DS-'+new Date().getFullYear()+'-'+String(Date.now()).slice(-6)}
+function markSaved(){const b=$('saveBadge');if(!b)return;b.textContent='Working copy saved';}
+
+function collectDraft(){
+  return{
+    selectedPreset,
+    selectedMonthly,
+    features:features.filter(f=>$('f_'+f.id)?.checked).map(f=>f.id),
+    fields:Object.fromEntries(FIELD_IDS.map(id=>[id,$(id)?$(id).value:'']))
+  };
+}
+function persistDraft(){
+  try{localStorage.setItem(DRAFT_KEY,JSON.stringify(collectDraft()));markSaved();}catch(e){}
+}
+function scheduleDraftSave(){
+  if(skipAutosave)return;
+  clearTimeout(draftTimer);
+  draftTimer=setTimeout(persistDraft,400);
+}
+function loadDraft(){
+  try{return JSON.parse(localStorage.getItem(DRAFT_KEY)||'null')}catch(e){return null}
+}
+function applyDraft(d){
+  if(!d)return;
+  skipAutosave=true;
+  selectedPreset=d.selectedPreset||'leadcrm';
+  selectedMonthly=d.selectedMonthly||'none';
+  if(d.fields)FIELD_IDS.forEach(id=>{if($(id)&&d.fields[id]!=null)$(id).value=d.fields[id]});
+  features.forEach(f=>{const el=$('f_'+f.id);if(el)el.checked=!!(d.features||[]).includes(f.id)});
+  renderPresets();
+  renderMonthly();
+  skipAutosave=false;
+}
+
+function renderPresets(){
+ $('presetGrid').innerHTML=presets.map(p=>`<div class="preset ${p.id===selectedPreset?'active':''}" onclick="choosePreset('${p.id}')"><strong>${p.name}</strong><span>${p.range}</span><small>${p.desc}</small></div>`).join('');
+}
+function renderFeatures(){
+ $('featureList').innerHTML=features.map(f=>`<label class="feature"><input type="checkbox" id="f_${f.id}" onchange="calculate();scheduleDraftSave()"><div><div class="name">${f.name}</div><div class="sub">${f.sub}</div></div><div class="adds">+${f.hours}h<br>+${money(f.value)} value</div></label>`).join('');
+}
+function renderMonthly(){
+ $('monthlyGrid').innerHTML=monthlyPlans.map(p=>`<div class="month-card"><strong>${p.name}</strong><span>${p.range}</span><small>${p.desc}</small><div class="switchrow"><input type="radio" name="monthly" ${p.id===selectedMonthly?'checked':''} onchange="chooseMonthly('${p.id}')"> Select</div></div>`).join('');
+}
+function getSelectedFeatures(){return features.filter(f=>$('f_'+f.id)?.checked)}
+function choosePreset(id){
+ selectedPreset=id;const p=presets.find(x=>x.id===id);
+ $('hours').value=p.hours;$('supabase').value=p.infra.supabase;$('n8n').value=p.infra.n8n;$('aiTools').value=p.infra.aiTools;$('emailApi').value=p.infra.emailApi;$('overhead').value=p.infra.overhead;$('buffer').value=p.infra.buffer;$('project').value=p.name;
+ features.forEach(f=>$('f_'+f.id).checked=false);renderPresets();calculate();scheduleDraftSave();
+}
+function chooseMonthly(id){selectedMonthly=id;$('monthlyOverride').value='';renderMonthly();calculate();scheduleDraftSave()}
+
+function getCalc(){
+ const p=presets.find(x=>x.id===selectedPreset),fs=getSelectedFeatures();
+ const baseHours=n('hours'),featureHours=fs.reduce((a,f)=>a+f.hours,0),totalHours=baseHours+featureHours,rate=n('rate');
+ const labor=totalHours*rate;
+ const infra=n('supabase')+n('n8n')+n('aiTools')+n('emailApi')+n('overhead')+n('direct');
+ const featureCost=fs.reduce((a,f)=>a+f.cost,0),featureValue=fs.reduce((a,f)=>a+f.value,0);
+ const buffer=n('buffer'),extra=n('extraProfit'),setup=n('setupFee');
+ const raw=labor+infra+featureCost+buffer+extra+setup;
+ const floor=p.min+featureValue+setup;
+ const auto=roundUp(Math.max(raw,floor),n('rounding')||100);
+ const final=$('override').value.trim()!==''?n('override'):auto;
+ const effective=totalHours?final/totalHours:0,deposit=final*(n('depositPct')/100);
+ const mp=monthlyPlans.find(x=>x.id===selectedMonthly);
+ const monthly=$('monthlyOverride').value.trim()!==''?n('monthlyOverride'):mp.default;
+ return {p,fs,baseHours,featureHours,totalHours,rate,labor,infra,featureCost,featureValue,buffer,extra,setup,raw,floor,auto,final,effective,deposit,mp,monthly};
+}
+function calculate(){
+ const c=getCalc();
+ $('mQuote').textContent=money(c.final);$('mLabor').textContent=money(c.labor);$('mCosts').textContent=money(c.infra+c.featureCost+c.buffer);$('mEffective').textContent=money(c.effective);
+ $('rRange').textContent=c.p.range;$('rHours').textContent=c.totalHours+'h';$('rLabor').textContent=money(c.labor);$('rSupabase').textContent=money(n('supabase'));$('rN8n').textContent=money(n('n8n'));$('rAi').textContent=money(n('aiTools'));$('rEmail').textContent=money(n('emailApi'));$('rOther').textContent=money(n('overhead')+n('direct')+c.featureCost);$('rBuffer').textContent=money(c.buffer);$('rFeatureValue').textContent=money(c.featureValue);$('rRaw').textContent=money(c.raw);$('rFloor').textContent=money(c.floor);$('rFinal').textContent=money(c.final);$('rDeposit').textContent=money(c.deposit);$('rMonthly').textContent=money(c.monthly)+'/mo';
+ const s=$('status');
+ if(c.final<c.floor){s.className='status bad';s.textContent='Warning: manual price is below the configured DS package floor.'}
+ else if(c.effective<c.rate){s.className='status warn';s.textContent='The estimate is above the package floor, but effective revenue per hour is below your target productive rate.'}
+ else{s.className='status good';s.textContent='Pricing covers the configured package floor and your target productive-rate structure.'}
+ buildEstimate(c);return c;
+}
+
+function buildEstimate(c=getCalc()){
+ $('eNo').textContent='Estimate '+$('estimateNo').value;
+ $('eDate').textContent='Date: '+formatDate($('estimateDate').value);
+ $('eValid').textContent='Valid until: '+formatDate($('validUntil').value);
+ $('eClient').textContent=$('client').value||'Prospective Client';$('eEmail').textContent=$('customerEmail').value;$('ePhone').textContent=$('customerPhone').value;
+ $('eProject').textContent=$('project').value||c.p.name;$('eService').textContent=c.p.name;$('eScope').textContent=$('scope').value;
+ let rows=`<tr><td>${esc(c.p.name)}</td><td>${money(c.final-c.setup)}</td></tr>`;
+ c.fs.forEach(f=>rows+=`<tr><td>${esc(f.name)}</td><td>Included</td></tr>`);
+ if(c.setup>0)rows+=`<tr><td>Setup / Onboarding</td><td>${money(c.setup)}</td></tr>`;
+ $('eItems').innerHTML=rows;$('eTotal').textContent='Project Investment: '+money(c.final);
+ $('eMonthly').textContent=c.monthly>0?`Ongoing Service: ${money(c.monthly)}/month — ${c.mp.name}`:'';
+ $('eTerms').textContent=`${n('depositPct')}% deposit (${money(c.deposit)}) is due to begin. Standard delivery window: ${$('delivery').value}. Includes ${n('revisions')} revision round(s).`;
+ $('eNotes').textContent=$('notes').value;
+}
+function estimateText(){
+ const c=getCalc(),featureLines=c.fs.map(f=>'• '+f.name).join('\n');
+ return `DS AUTOMATIONS
+ESTIMATE ${$('estimateNo').value}
+
+Prepared for: ${$('client').value||'Prospective Client'}
+Project: ${$('project').value||c.p.name}
+
+${c.p.name}
+${$('scope').value}
+
+Included:
+• ${c.p.name}
+${featureLines}${c.setup>0?'\n• Setup / Onboarding: '+money(c.setup):''}
+
+Project Investment: ${money(c.final)}
+Deposit to Begin (${n('depositPct')}%): ${money(c.deposit)}
+${c.monthly>0?'Ongoing Service: '+money(c.monthly)+'/month — '+c.mp.name+'\n':''}
+Estimate Date: ${formatDate($('estimateDate').value)}
+Valid Until: ${formatDate($('validUntil').value)}
+
+Terms:
+Standard delivery window: ${$('delivery').value}
+Included revisions: ${n('revisions')} round(s)
+
+${$('notes').value}
+
+DS Automations
+Your Business Is My Business`;
+}
+function emailEstimate(){
+ const email=$('customerEmail').value.trim();
+ if(!email){alert('Enter the customer email address first.');return}
+ const subject=encodeURIComponent(`DS Automations Estimate ${$('estimateNo').value} — ${$('project').value||getCalc().p.name}`);
+ const body=encodeURIComponent(estimateText());
+ window.location.href=`mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
+}
+async function copyEstimateText(){try{await navigator.clipboard.writeText(estimateText());alert('Estimate text copied.')}catch(e){alert('Copy failed. Select and copy manually.')}}
+function goEstimate(){calculate();persistDraft();showTab('estimate',document.querySelectorAll('.tab')[1])}
+function showTab(id,btn){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='estimate')buildEstimate()}
+
+function loadHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]')}catch(e){return[]}}
+function storeHistory(a){localStorage.setItem(HISTORY_KEY,JSON.stringify(a))}
+function saveEstimate(){
+ const c=calculate();
+ persistDraft();
+ const rec={id:Date.now(),estimateNo:$('estimateNo').value,date:$('estimateDate').value,client:$('client').value,email:$('customerEmail').value,project:$('project').value||c.p.name,service:c.p.name,total:c.final,deposit:c.deposit,monthly:c.monthly,monthlyPlan:c.mp.name,hours:c.totalHours,rate:c.rate,features:c.fs.map(f=>f.name),scope:$('scope').value,notes:$('notes').value,validUntil:$('validUntil').value};
+ const a=loadHistory();a.unshift(rec);storeHistory(a);renderHistory();alert('Estimate saved in this browser.');
+}
+function renderHistory(){
+ const a=loadHistory(),el=$('historyWrap');
+ if(!a.length){el.innerHTML='<div class="empty">No saved estimates yet.</div>';return}
+ el.innerHTML=`<div style="overflow:auto"><table><thead><tr><th>Estimate</th><th>Date</th><th>Client</th><th>Project</th><th>Total</th><th>Deposit</th><th>Monthly</th><th></th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc(x.estimateNo)}</td><td>${esc(x.date)}</td><td>${esc(x.client)}</td><td>${esc(x.project)}</td><td><strong>${money(x.total)}</strong></td><td>${money(x.deposit)}</td><td>${money(x.monthly)}/mo</td><td><button class="danger" onclick="deleteEstimate(${x.id})">Delete</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+function deleteEstimate(id){storeHistory(loadHistory().filter(x=>x.id!==id));renderHistory()}
+function clearHistory(){if(confirm('Clear all saved estimates from this browser?')){localStorage.removeItem(HISTORY_KEY);renderHistory()}}
+function exportCSV(){
+ const a=loadHistory();if(!a.length){alert('No saved estimates to export.');return}
+ const rows=[['Estimate','Date','Client','Email','Project','Service','Total','Deposit','Monthly','Monthly Plan','Hours','Rate'],...a.map(x=>[x.estimateNo,x.date,x.client,x.email,x.project,x.service,x.total,x.deposit,x.monthly,x.monthlyPlan,x.hours,x.rate])];
+ const csv=rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+ const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),aTag=document.createElement('a');aTag.href=url;aTag.download='DS_Estimates_History.csv';aTag.click();URL.revokeObjectURL(url);
+}
+function resetAll(){
+ skipAutosave=true;
+ selectedPreset='leadcrm';selectedMonthly='none';
+ $('client').value='';$('customerEmail').value='';$('customerPhone').value='';$('project').value='';
+ $('rate').value=200;$('hours').value=15;$('direct').value=0;$('extraProfit').value=0;$('override').value='';$('monthlyOverride').value='';$('setupFee').value=0;$('depositPct').value=50;$('delivery').value='14 calendar days';$('revisions').value=2;
+ $('scope').value='Modernized website, clear services, mobile-first experience, lead capture, launch setup, and selected features below.';
+ $('notes').value='Project timeline begins after deposit, required content, access, branding materials, and approvals are received. Delayed client feedback or scope changes may extend the delivery window.';
+ $('estimateNo').value=newEstimateNo();const today=new Date().toISOString().slice(0,10);$('estimateDate').value=today;$('validUntil').value=addDays(today,14);
+ renderMonthly();choosePreset('leadcrm');skipAutosave=false;persistDraft();
+}
+
+renderPresets();renderFeatures();renderMonthly();
+FIELD_IDS.forEach(id=>$(id).addEventListener('input',()=>{calculate();scheduleDraftSave()}));
+const existing=loadDraft();
+if(existing){applyDraft(existing);markSaved()}
+else{
+  const today=new Date().toISOString().slice(0,10);$('estimateNo').value=newEstimateNo();$('estimateDate').value=today;$('validUntil').value=addDays(today,14);
+  choosePreset('leadcrm');
+}
+renderHistory();calculate();
+window.addEventListener('beforeunload',persistDraft);
+</script>
+</body>
+</html>
