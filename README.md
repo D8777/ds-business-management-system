@@ -19,6 +19,10 @@ Saved estimate history also stays in this browser. Export CSV from **Saved Estim
 
 The app does not send email by itself.
 
+## Additional Services / Add-Ons
+
+A core project is optional. Choose **No core package / Mix & match only** to quote CRM, SMS, email, or other work without a website rebuild floor. Selected add-ons contribute hours (× complexity × quantity) and software cost into the existing calculator; the customer estimate lists service names only.
+
 ## GitHub Pages
 
 In the GitHub repo: **Settings → Pages → Deploy from a branch → `main` / `/ (root)`**.

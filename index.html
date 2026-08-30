@@ -31,11 +31,24 @@
   input:focus,select:focus,textarea:focus{border-color:var(--purple)} textarea{min-height:80px;resize:vertical}
   .preset{padding:14px;border:1px solid var(--border);border-radius:14px;background:#11141b;cursor:pointer}
   .preset:hover{border-color:#50566a}.preset.active{border-color:var(--purple);box-shadow:0 0 0 1px var(--purple) inset}
+  .preset.optional{border-style:dashed}
   .preset strong{display:block;font-size:14px}.preset span{display:block;color:#d8bc79;font-weight:800;margin-top:4px}
   .preset small{display:block;color:var(--muted);margin-top:5px;line-height:1.4}
-  .feature-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .feature{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:11px;border:1px solid var(--border);border-radius:12px;background:#11141a}
-  .feature input{width:18px;height:18px}.feature .name{font-size:13px;font-weight:700}.feature .sub{font-size:11px;color:var(--muted);margin-top:2px}.feature .adds{text-align:right;font-size:11px;color:#d9c18b;white-space:nowrap}
+  .core-help{margin:-4px 0 12px;color:var(--muted);font-size:12px;line-height:1.5}
+  .addon-cat{margin:16px 0 10px}
+  .addon-cat h4{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#d8bc79}
+  .addon-list{display:flex;flex-direction:column;gap:8px}
+  .addon{padding:12px;border:1px solid var(--border);border-radius:12px;background:#11141a}
+  .addon.on{border-color:rgba(139,92,246,.45)}
+  .addon-top{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:flex-start}
+  .addon-top input[type=checkbox]{width:18px;height:18px;margin-top:2px}
+  .addon .name{font-size:13px;font-weight:700}.addon .sub{font-size:11px;color:var(--muted);margin-top:2px}
+  .addon-fields{display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+  .addon.on .addon-fields{display:grid}
+  .addon-fields label{font-size:10px;margin-bottom:4px}
+  .addon-fields input,.addon-fields select{padding:8px 9px;font-size:13px}
+  .addon-custom{margin-top:14px;padding:14px;border:1px dashed #3a4154;border-radius:12px;background:#11141a}
+  .addon-custom textarea{min-height:64px}
   .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}
   .metric{background:linear-gradient(180deg,#1c202c,#141720);border:1px solid var(--border);border-radius:14px;padding:14px}
   .metric .k{font-size:11px;color:var(--muted)}.metric .v{font-size:23px;font-weight:800;margin-top:5px}.metric small{display:block;margin-top:3px;color:var(--muted)}
@@ -57,7 +70,7 @@
   .history table{width:100%;border-collapse:collapse;font-size:12px}.history th,.history td{padding:10px 8px;border-bottom:1px solid #292e3a;text-align:left}.history th{color:var(--muted)}
   .empty{color:var(--muted);padding:16px 0}
   @media(max-width:1050px){.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}.monthly-grid{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}}
-  @media(max-width:620px){.formgrid,.feature-list,.grid3,.monthly-grid,.metrics{grid-template-columns:1fr}.top,.paperhead{flex-direction:column}}
+  @media(max-width:620px){.formgrid,.grid3,.monthly-grid,.metrics,.addon-fields{grid-template-columns:1fr}.addon.on .addon-fields{grid-template-columns:1fr 1fr}.top,.paperhead{flex-direction:column}}
   @media print{
     body{background:#fff}.top,.tabs,#builder,.history,.noprint{display:none!important}.wrap{max-width:none;padding:0}.view{display:block!important}.card{border:0;box-shadow:none;padding:0}.paper{border-radius:0;padding:12mm}
   }
@@ -83,6 +96,7 @@
     <div class="grid2">
       <div class="card">
         <h2>1. Core DS Service</h2>
+        <p class="core-help">Select a core project only if they need one. Otherwise use Additional Services below.</p>
         <div class="grid3" id="presetGrid"></div>
 
         <h3>Client & Project</h3>
@@ -90,23 +104,25 @@
           <div><label>Client / Business Name</label><input id="client" placeholder="ABC Detailing"></div>
           <div><label>Customer Email</label><input id="customerEmail" type="email" placeholder="owner@example.com"></div>
           <div><label>Customer Phone</label><input id="customerPhone" placeholder="Optional"></div>
-          <div><label>Project Name</label><input id="project" placeholder="Website + Lead System"></div>
+          <div><label>Project Name</label><input id="project" placeholder="Custom services"></div>
           <div><label>Target Productive Rate ($/hr)</label><input id="rate" type="number" value="200" min="0" step="10"></div>
-          <div><label>Estimated Base Hours</label><input id="hours" type="number" value="15" min="0" step=".5"></div>
+          <div><label>Estimated Base Hours</label><input id="hours" type="number" value="0" min="0" step=".5"></div>
         </div>
 
-        <h3>2. Add Features</h3>
-        <div class="feature-list" id="featureList"></div>
+        <h3>2. Additional Services / Add-Ons</h3>
+        <div class="help" style="margin:0 0 6px">Select only what the prospect actually needs. Hours and software feed the internal calculator; they are not customer prices.</div>
+        <div class="help" style="margin:0 0 12px">Audit first → select only the services that solve the verified problem → estimator calculates scope and price.</div>
+        <div id="addonCatalog"></div>
 
         <h3>3. Internal Infrastructure Costs</h3>
         <div class="formgrid">
-          <div><label>Supabase / Infrastructure</label><input id="supabase" type="number" value="25" min="0"></div>
-          <div><label>n8n / Automation</label><input id="n8n" type="number" value="25" min="0"></div>
-          <div><label>AI / Coding Tools</label><input id="aiTools" type="number" value="50" min="0"></div>
-          <div><label>Email / API</label><input id="emailApi" type="number" value="25" min="0"></div>
-          <div><label>General Overhead Allocation</label><input id="overhead" type="number" value="75" min="0"></div>
+          <div><label>Supabase / Infrastructure</label><input id="supabase" type="number" value="0" min="0"></div>
+          <div><label>n8n / Automation</label><input id="n8n" type="number" value="0" min="0"></div>
+          <div><label>AI / Coding Tools</label><input id="aiTools" type="number" value="0" min="0"></div>
+          <div><label>Email / API</label><input id="emailApi" type="number" value="0" min="0"></div>
+          <div><label>General Overhead Allocation</label><input id="overhead" type="number" value="0" min="0"></div>
           <div><label>Other Direct Costs</label><input id="direct" type="number" value="0" min="0"></div>
-          <div><label>Risk / Revision Buffer</label><input id="buffer" type="number" value="300" min="0"></div>
+          <div><label>Risk / Revision Buffer</label><input id="buffer" type="number" value="0" min="0"></div>
           <div><label>Extra Desired Profit</label><input id="extraProfit" type="number" value="0" min="0" step="50"></div>
           <div><label>Quote Rounding</label><select id="rounding"><option value="50">$50</option><option value="100" selected>$100</option><option value="250">$250</option><option value="500">$500</option></select></div>
           <div><label>Manual Price Override</label><input id="override" type="number" min="0" placeholder="Optional"></div>
@@ -128,7 +144,7 @@
           <div><label>Deposit %</label><input id="depositPct" type="number" value="50" min="0" max="100"></div>
           <div><label>Delivery Window</label><input id="delivery" value="14 calendar days"></div>
           <div><label>Included Revision Rounds</label><input id="revisions" type="number" value="2" min="0"></div>
-          <div class="full"><label>Scope / What Client Gets</label><textarea id="scope">Modernized website, clear services, mobile-first experience, lead capture, launch setup, and selected features below.</textarea></div>
+          <div class="full"><label>Scope / What Client Gets</label><textarea id="scope">Work listed on this estimate. Includes the selected core project if one was chosen, plus any additional services shown as included items.</textarea></div>
           <div class="full"><label>Customer Notes</label><textarea id="notes">Project timeline begins after deposit, required content, access, branding materials, and approvals are received. Delayed client feedback or scope changes may extend the delivery window.</textarea></div>
         </div>
 
@@ -197,7 +213,7 @@
           </div>
         </div>
 
-        <h2 id="eService">Website + Lead System / Basic CRM</h2>
+        <h2 id="eService">Custom services</h2>
         <p class="scope" id="eScope"></p>
 
         <table>
@@ -241,31 +257,57 @@
 const FIELD_IDS=['client','customerEmail','customerPhone','project','rate','hours','supabase','n8n','aiTools','emailApi','overhead','direct','buffer','extraProfit','rounding','override','monthlyOverride','setupFee','estimateNo','estimateDate','validUntil','depositPct','delivery','revisions','scope','notes'];
 const DRAFT_KEY='dsEstimateDraft';
 const HISTORY_KEY='dsEstimates';
+const CX={standard:1,elevated:1.25,high:1.5,low:1,medium:1.25};
 const presets=[
+{id:'mix',noCore:true,name:'No core package / Mix & match only',range:'Priced from selected services',min:0,max:0,hours:0,infra:{supabase:0,n8n:0,aiTools:0,emailApi:0,overhead:0,buffer:0},desc:'No website rebuild or core package floor. Quote only the additional services you select below.'},
 {id:'refresh',name:'Website Refresh / Modernization',range:'$1,500–$2,500',min:1500,max:2500,hours:10,infra:{supabase:0,n8n:0,aiTools:40,emailApi:0,overhead:60,buffer:250},desc:'Modern website refresh, service clarity, mobile usability and core search structure.'},
+{id:'rebuild',name:'Website Rebuild',range:'$2,000–$4,000',min:2000,max:4000,hours:10,infra:{supabase:0,n8n:0,aiTools:50,emailApi:0,overhead:75,buffer:300},desc:'Full rebuild rather than a refresh — new structure, not a skin.'},
 {id:'leadcrm',name:'Website + Lead System / Basic CRM',range:'$2,500–$4,000',min:2500,max:4000,hours:15,infra:{supabase:25,n8n:25,aiTools:50,emailApi:25,overhead:75,buffer:300},desc:'Website plus lead capture, simple CRM fields and basic automation.'},
 {id:'portal',name:'Custom Customer Portal / CRM MVP',range:'$5,000–$8,000',min:5000,max:8000,hours:30,infra:{supabase:100,n8n:100,aiTools:100,emailApi:75,overhead:150,buffer:500},desc:'Custom Supabase-backed portal / CRM MVP with authentication and workflows.'},
 {id:'fullcrm',name:'Full Custom CRM',range:'$8,000–$15,000+',min:8000,max:15000,hours:45,infra:{supabase:150,n8n:175,aiTools:150,emailApi:100,overhead:250,buffer:800},desc:'Deeper custom CRM with workflows, permissions, dashboards and business logic.'},
 {id:'aiassistant',name:'AI Website Assistant',range:'+$1,500–$3,000',min:1500,max:3000,hours:8,infra:{supabase:25,n8n:50,aiTools:75,emailApi:50,overhead:50,buffer:250},desc:'Standalone AI website assistant or add-on implementation.'},
 {id:'agent',name:'Advanced AI Agent',range:'+$3,000–$7,500+',min:3000,max:7500,hours:18,infra:{supabase:75,n8n:100,aiTools:125,emailApi:100,overhead:100,buffer:400},desc:'Advanced agentic workflow with integrations, actions and automation.'}
 ];
-const features=[
-{id:'supabaseDB',name:'Supabase Database',sub:'Structured cloud database',hours:2,cost:25,value:200},
-{id:'auth',name:'Customer Login / Authentication',sub:'Sign-in and protected views',hours:4,cost:20,value:500},
-{id:'admin',name:'Admin Dashboard',sub:'Internal management interface',hours:5,cost:20,value:700},
-{id:'leadcrmF',name:'Lead CRM',sub:'Lead records, statuses and contact data',hours:4,cost:25,value:500},
-{id:'portalF',name:'Customer Portal',sub:'Client-facing account area',hours:7,cost:40,value:900},
-{id:'uploads',name:'File Uploads / Storage',sub:'Documents, photos or records',hours:3,cost:30,value:350},
-{id:'emails',name:'Automated Emails',sub:'Confirmations and workflow emails',hours:2,cost:25,value:250},
-{id:'n8nF',name:'n8n Workflows',sub:'Workflow automation',hours:3,cost:25,value:400},
-{id:'aiWebsite',name:'AI Website Assistant',sub:'Conversational website assistant',hours:8,cost:100,value:1500},
-{id:'advancedAgent',name:'Advanced AI Agent',sub:'Actions and multi-step automation',hours:18,cost:250,value:3000},
-{id:'sms',name:'SMS Integration',sub:'Text alerts and follow-up',hours:3,cost:50,value:400},
-{id:'calendar',name:'Calendar / Booking',sub:'Appointments or scheduling',hours:4,cost:40,value:500},
-{id:'analytics',name:'Analytics + Search Console',sub:'Measurement and indexing setup',hours:2,cost:0,value:200},
-{id:'aeogeo',name:'AEO / GEO Setup',sub:'AI/search-ready business structure',hours:4,cost:0,value:500},
-{id:'revision',name:'Additional Revision Round',sub:'One extra revision cycle',hours:2,cost:0,value:300}
+const addons=[
+{id:'page',cat:'Lead & Sales',name:'Additional standard page',sub:'Extra page using the existing site pattern',hours:1.5,software:0},
+{id:'landing',cat:'Lead & Sales',name:'Custom landing page',sub:'Campaign or offer landing page',hours:2.5,software:0},
+{id:'quoteForm',cat:'Lead & Sales',name:'Advanced contact/quote form',sub:'Multi-field quote or intake form',hours:2,software:0},
+{id:'booking',cat:'Lead & Sales',name:'Online booking integration',sub:'Appointments or scheduling',hours:3,software:40},
+{id:'crmBasic',cat:'Lead & Sales',name:'Basic CRM setup',sub:'Lead records, statuses and contact data',hours:4,software:25},
+{id:'crmCustom',cat:'Lead & Sales',name:'Custom CRM functionality',sub:'Extra CRM fields, views or logic',hours:6,software:40},
+{id:'routing',cat:'Lead & Sales',name:'Lead routing automation',sub:'Assign or notify the right person',hours:2.5,software:25},
+{id:'emailAck',cat:'Lead & Sales',name:'Instant email acknowledgment',sub:'Immediate confirmation email',hours:1,software:25},
+{id:'sms',cat:'Lead & Sales',name:'SMS/text-back automation',sub:'Text alerts and follow-up',hours:3,software:50},
+{id:'missedCall',cat:'Lead & Sales',name:'Missed-call text-back',sub:'Auto text when a call is missed',hours:3,software:50},
+{id:'followup',cat:'Lead & Sales',name:'Follow-up sequence',sub:'Timed follow-up emails',hours:3,software:25},
+{id:'estimateFollowup',cat:'Lead & Sales',name:'Estimate follow-up system',sub:'Follow up on sent estimates',hours:3,software:25},
+{id:'reactivation',cat:'Lead & Sales',name:'Customer reactivation campaign',sub:'Win-back inactive customers',hours:4,software:25},
+{id:'reviews',cat:'Lead & Sales',name:'Review request automation',sub:'Ask for reviews after the job',hours:2.5,software:25},
+{id:'mailerlite',cat:'Lead & Sales',name:'MailerLite / email setup',sub:'List, forms and basic email',hours:2.5,software:25},
+{id:'emailAuto',cat:'Lead & Sales',name:'Advanced email automation',sub:'Multi-step email automations',hours:4,software:25},
+{id:'servicePage',cat:'Visibility & Content',name:'Service/location page',sub:'Service or city page for local search',hours:2,software:0},
+{id:'gbp',cat:'Visibility & Content',name:'Google Business Profile optimization',sub:'GBP cleanup and setup',hours:2.5,software:0},
+{id:'localSeo',cat:'Visibility & Content',name:'Local SEO setup',sub:'Local search foundations',hours:3,software:0},
+{id:'aeogeo',cat:'Visibility & Content',name:'AEO/GEO content/structure upgrade',sub:'AI/search-ready structure',hours:3.5,software:0},
+{id:'schema',cat:'Visibility & Content',name:'Structured data/schema',sub:'Schema markup for services',hours:2,software:0},
+{id:'analytics',cat:'Visibility & Content',name:'Analytics + conversion tracking',sub:'Measurement setup',hours:2,software:0},
+{id:'searchConsole',cat:'Visibility & Content',name:'Search Console setup',sub:'Indexing and coverage setup',hours:1,software:0},
+{id:'logo',cat:'Visibility & Content',name:'Logo/brand refresh',sub:'Logo or visual refresh',hours:2.5,software:0},
+{id:'copywriting',cat:'Visibility & Content',name:'Website copywriting',sub:'Rewritten page copy',hours:3,software:0},
+{id:'socialFunnel',cat:'Visibility & Content',name:'Social-to-lead funnel',sub:'Social traffic into a lead path',hours:4,software:25},
+{id:'leadMagnet',cat:'Visibility & Content',name:'Lead magnet/funnel',sub:'Opt-in offer and follow-up',hours:3,software:25},
+{id:'video',cat:'Visibility & Content',name:'Video editing package',sub:'Custom video package — adjust hours to match deliverables',hours:3,software:0},
+{id:'socialMgmt',cat:'Visibility & Content',name:'Social media management',sub:'Monthly / custom — adjust hours',hours:2,software:0},
+{id:'n8n',cat:'Custom Systems',name:'n8n workflow',sub:'Each workflow — use quantity for additional flows',hours:4,software:25},
+{id:'api',cat:'Custom Systems',name:'Third-party API integration',sub:'Connect an outside system',hours:5,software:50},
+{id:'supabase',cat:'Custom Systems',name:'Supabase/database setup',sub:'Structured cloud database',hours:4,software:50},
+{id:'portal',cat:'Custom Systems',name:'Customer portal',sub:'Client-facing account area',hours:8,software:40},
+{id:'dashboard',cat:'Custom Systems',name:'Internal dashboard',sub:'Internal management interface',hours:6,software:20},
+{id:'quoting',cat:'Custom Systems',name:'Custom quoting calculator',sub:'Quote or price calculator',hours:6,software:20},
+{id:'aiAssistant',cat:'Custom Systems',name:'AI website assistant',sub:'Conversational website assistant',hours:8,software:100},
+{id:'aiAgent',cat:'Custom Systems',name:'AI workflow/agent',sub:'Actions and multi-step automation',hours:12,software:150}
 ];
+const FEATURE_TO_ADDON={supabaseDB:'supabase',auth:'portal',admin:'dashboard',leadcrmF:'crmBasic',portalF:'portal',emails:'emailAck',n8nF:'n8n',aiWebsite:'aiAssistant',advancedAgent:'aiAgent',sms:'sms',calendar:'booking',analytics:'analytics',aeogeo:'aeogeo'};
 const monthlyPlans=[
 {id:'none',name:'No Monthly Plan',range:'$0',default:0,desc:'Project-only pricing.'},
 {id:'care',name:'Website Care',range:'$75–$150/mo',default:125,desc:'Basic maintenance and updates.'},
@@ -274,23 +316,44 @@ const monthlyPlans=[
 {id:'crmai',name:'CRM + AI',range:'$350–$750+/mo',default:550,desc:'CRM management plus AI / automation oversight.'}
 ];
 
-let selectedPreset='leadcrm',selectedMonthly='none',draftTimer=null,skipAutosave=false;
+let selectedPreset='mix',selectedMonthly='none',draftTimer=null,skipAutosave=false;
 const $=id=>document.getElementById(id);
 const n=id=>parseFloat($(id).value)||0;
 const money=v=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(v)||0);
 const roundUp=(v,s)=>Math.ceil(v/s)*s;
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const numOr=(el,fallback)=>{const v=parseFloat(el&&el.value);return Number.isFinite(v)?v:fallback};
 
 function addDays(dateStr,days){const d=new Date(dateStr+'T12:00:00');d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
 function formatDate(s){if(!s)return'';return new Date(s+'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}
 function newEstimateNo(){return 'DS-'+new Date().getFullYear()+'-'+String(Date.now()).slice(-6)}
 function markSaved(){const b=$('saveBadge');if(!b)return;b.textContent='Working copy saved';}
+function customerTitle(c){return c.p.noCore?($('project').value||'Custom services'):c.p.name}
 
+function collectAddonState(){
+  return Object.fromEntries(addons.map(a=>[a.id,{
+    on:!!$('a_'+a.id)?.checked,
+    hours:$('ah_'+a.id)?.value,
+    software:$('as_'+a.id)?.value,
+    complexity:$('ac_'+a.id)?.value||'standard',
+    qty:$('aq_'+a.id)?.value||'1'
+  }]));
+}
+function collectCustomAddon(){
+  return{
+    desc:$('customDesc')?.value||'',
+    hours:$('customHours')?.value||'',
+    software:$('customSoftware')?.value||'',
+    complexity:$('customComplexity')?.value||'low',
+    qty:$('customQty')?.value||'1'
+  };
+}
 function collectDraft(){
   return{
     selectedPreset,
     selectedMonthly,
-    features:features.filter(f=>$('f_'+f.id)?.checked).map(f=>f.id),
+    addons:collectAddonState(),
+    customAddon:collectCustomAddon(),
     fields:Object.fromEntries(FIELD_IDS.map(id=>[id,$(id)?$(id).value:'']))
   };
 }
@@ -305,32 +368,115 @@ function scheduleDraftSave(){
 function loadDraft(){
   try{return JSON.parse(localStorage.getItem(DRAFT_KEY)||'null')}catch(e){return null}
 }
+function applyAddonState(d){
+  const state={...(d.addons||{})};
+  if(!d.addons && Array.isArray(d.features)){
+    d.features.forEach(fid=>{
+      const nid=FEATURE_TO_ADDON[fid];
+      if(nid) state[nid]={...state[nid],on:true};
+    });
+  }
+  addons.forEach(a=>{
+    const s=state[a.id]; if(!s) return;
+    if($('a_'+a.id)) $('a_'+a.id).checked=!!s.on;
+    if(s.hours!=null && $('ah_'+a.id)) $('ah_'+a.id).value=s.hours;
+    if(s.software!=null && $('as_'+a.id)) $('as_'+a.id).value=s.software;
+    if(s.complexity && $('ac_'+a.id)) $('ac_'+a.id).value=s.complexity;
+    if(s.qty!=null && $('aq_'+a.id)) $('aq_'+a.id).value=s.qty;
+    if($('addon_'+a.id)) $('addon_'+a.id).classList.toggle('on',!!$('a_'+a.id)?.checked);
+  });
+  const c=d.customAddon;
+  if(c){
+    if(c.desc!=null) $('customDesc').value=c.desc;
+    if(c.hours!=null) $('customHours').value=c.hours;
+    if(c.software!=null) $('customSoftware').value=c.software;
+    if(c.complexity) $('customComplexity').value=c.complexity;
+    if(c.qty!=null) $('customQty').value=c.qty;
+  }
+}
 function applyDraft(d){
   if(!d)return;
   skipAutosave=true;
   selectedPreset=d.selectedPreset||'leadcrm';
   selectedMonthly=d.selectedMonthly||'none';
   if(d.fields)FIELD_IDS.forEach(id=>{if($(id)&&d.fields[id]!=null)$(id).value=d.fields[id]});
-  features.forEach(f=>{const el=$('f_'+f.id);if(el)el.checked=!!(d.features||[]).includes(f.id)});
   renderPresets();
+  renderAddons();
   renderMonthly();
+  applyAddonState(d);
   skipAutosave=false;
 }
 
 function renderPresets(){
- $('presetGrid').innerHTML=presets.map(p=>`<div class="preset ${p.id===selectedPreset?'active':''}" onclick="choosePreset('${p.id}')"><strong>${p.name}</strong><span>${p.range}</span><small>${p.desc}</small></div>`).join('');
+ $('presetGrid').innerHTML=presets.map(p=>`<div class="preset ${p.noCore?'optional':''} ${p.id===selectedPreset?'active':''}" onclick="choosePreset('${p.id}')"><strong>${p.name}</strong><span>${p.range}</span><small>${p.desc}</small></div>`).join('');
 }
-function renderFeatures(){
- $('featureList').innerHTML=features.map(f=>`<label class="feature"><input type="checkbox" id="f_${f.id}" onchange="calculate();scheduleDraftSave()"><div><div class="name">${f.name}</div><div class="sub">${f.sub}</div></div><div class="adds">+${f.hours}h<br>+${money(f.value)} value</div></label>`).join('');
+function addonRow(a){
+  return `<div class="addon" id="addon_${a.id}">
+    <div class="addon-top">
+      <input type="checkbox" id="a_${a.id}" onchange="onAddonChange('${a.id}')">
+      <div>
+        <div class="name">${a.name}</div>
+        <div class="sub">${a.sub}</div>
+        <div class="addon-fields">
+          <div><label>Estimated Hours</label><input id="ah_${a.id}" type="number" min="0" step=".5" value="${a.hours}" oninput="calculate();scheduleDraftSave()"></div>
+          <div><label>Software Cost</label><input id="as_${a.id}" type="number" min="0" step="5" value="${a.software}" oninput="calculate();scheduleDraftSave()"></div>
+          <div><label>Complexity</label><select id="ac_${a.id}" onchange="calculate();scheduleDraftSave()"><option value="standard">Standard</option><option value="elevated">Elevated</option><option value="high">High</option></select></div>
+          <div><label>Quantity</label><input id="aq_${a.id}" type="number" min="1" step="1" value="1" oninput="calculate();scheduleDraftSave()"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderAddons(){
+  const cats=['Lead & Sales','Visibility & Content','Custom Systems'];
+  $('addonCatalog').innerHTML=cats.map(cat=>`<div class="addon-cat"><h4>${cat}</h4><div class="addon-list">${addons.filter(a=>a.cat===cat).map(addonRow).join('')}</div></div>`).join('')+
+    `<div class="addon-custom">
+      <div class="name">Custom / Unlisted Service</div>
+      <div class="sub">Use when the prospect needs something not listed. Included only if you add a description or hours.</div>
+      <div class="formgrid" style="margin-top:10px">
+        <div class="full"><label>Description</label><textarea id="customDesc" placeholder="Describe the unlisted service" oninput="calculate();scheduleDraftSave()"></textarea></div>
+        <div><label>Estimated Hours</label><input id="customHours" type="number" min="0" step=".5" value="0" oninput="calculate();scheduleDraftSave()"></div>
+        <div><label>Software / API Cost</label><input id="customSoftware" type="number" min="0" step="5" value="0" oninput="calculate();scheduleDraftSave()"></div>
+        <div><label>Risk / Complexity</label><select id="customComplexity" onchange="calculate();scheduleDraftSave()"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div>
+        <div><label>Quantity</label><input id="customQty" type="number" min="1" step="1" value="1" oninput="calculate();scheduleDraftSave()"></div>
+      </div>
+    </div>`;
 }
 function renderMonthly(){
  $('monthlyGrid').innerHTML=monthlyPlans.map(p=>`<div class="month-card"><strong>${p.name}</strong><span>${p.range}</span><small>${p.desc}</small><div class="switchrow"><input type="radio" name="monthly" ${p.id===selectedMonthly?'checked':''} onchange="chooseMonthly('${p.id}')"> Select</div></div>`).join('');
 }
-function getSelectedFeatures(){return features.filter(f=>$('f_'+f.id)?.checked)}
+function onAddonChange(id){
+  $('addon_'+id).classList.toggle('on', $('a_'+id).checked);
+  calculate();scheduleDraftSave();
+}
+function getSelectedFeatures(){
+  const rate=n('rate'), out=[];
+  addons.forEach(a=>{
+    if(!$('a_'+a.id)?.checked) return;
+    const hours=numOr($('ah_'+a.id), a.hours);
+    const software=numOr($('as_'+a.id), a.software);
+    const mult=CX[$('ac_'+a.id)?.value]||1;
+    const qty=Math.max(0, numOr($('aq_'+a.id), 1));
+    if(!qty) return;
+    const h=Math.round(hours*mult*qty*100)/100;
+    out.push({id:a.id,name:qty>1?a.name+' (×'+qty+')':a.name,hours:h,cost:software*qty,value:h*rate});
+  });
+  const desc=($('customDesc')?.value||'').trim();
+  const ch=numOr($('customHours'), 0);
+  if(desc || ch>0){
+    const software=numOr($('customSoftware'), 0);
+    const mult=CX[$('customComplexity')?.value]||1;
+    const qty=Math.max(1, numOr($('customQty'), 1));
+    const h=Math.round(ch*mult*qty*100)/100;
+    const base=desc||'Custom / Unlisted Service';
+    out.push({id:'custom',name:qty>1?base+' (×'+qty+')':base,hours:h,cost:software*qty,value:h*rate});
+  }
+  return out;
+}
 function choosePreset(id){
  selectedPreset=id;const p=presets.find(x=>x.id===id);
- $('hours').value=p.hours;$('supabase').value=p.infra.supabase;$('n8n').value=p.infra.n8n;$('aiTools').value=p.infra.aiTools;$('emailApi').value=p.infra.emailApi;$('overhead').value=p.infra.overhead;$('buffer').value=p.infra.buffer;$('project').value=p.name;
- features.forEach(f=>$('f_'+f.id).checked=false);renderPresets();calculate();scheduleDraftSave();
+ $('hours').value=p.hours;$('supabase').value=p.infra.supabase;$('n8n').value=p.infra.n8n;$('aiTools').value=p.infra.aiTools;$('emailApi').value=p.infra.emailApi;$('overhead').value=p.infra.overhead;$('buffer').value=p.infra.buffer;$('project').value=p.noCore?'Custom services':p.name;
+ renderAddons();renderPresets();calculate();scheduleDraftSave();
 }
 function chooseMonthly(id){selectedMonthly=id;$('monthlyOverride').value='';renderMonthly();calculate();scheduleDraftSave()}
 
@@ -362,33 +508,38 @@ function calculate(){
 }
 
 function buildEstimate(c=getCalc()){
+ const title=customerTitle(c);
  $('eNo').textContent='Estimate '+$('estimateNo').value;
  $('eDate').textContent='Date: '+formatDate($('estimateDate').value);
  $('eValid').textContent='Valid until: '+formatDate($('validUntil').value);
  $('eClient').textContent=$('client').value||'Prospective Client';$('eEmail').textContent=$('customerEmail').value;$('ePhone').textContent=$('customerPhone').value;
- $('eProject').textContent=$('project').value||c.p.name;$('eService').textContent=c.p.name;$('eScope').textContent=$('scope').value;
- let rows=`<tr><td>${esc(c.p.name)}</td><td>${money(c.final-c.setup)}</td></tr>`;
+ $('eProject').textContent=$('project').value||title;$('eService').textContent=title;$('eScope').textContent=$('scope').value;
+ let rows='';
+ if(!c.p.noCore) rows+=`<tr><td>${esc(c.p.name)}</td><td>${money(c.final-c.setup)}</td></tr>`;
  c.fs.forEach(f=>rows+=`<tr><td>${esc(f.name)}</td><td>Included</td></tr>`);
  if(c.setup>0)rows+=`<tr><td>Setup / Onboarding</td><td>${money(c.setup)}</td></tr>`;
+ if(!rows) rows=`<tr><td>Selected services</td><td>${money(c.final)}</td></tr>`;
  $('eItems').innerHTML=rows;$('eTotal').textContent='Project Investment: '+money(c.final);
  $('eMonthly').textContent=c.monthly>0?`Ongoing Service: ${money(c.monthly)}/month — ${c.mp.name}`:'';
  $('eTerms').textContent=`${n('depositPct')}% deposit (${money(c.deposit)}) is due to begin. Standard delivery window: ${$('delivery').value}. Includes ${n('revisions')} revision round(s).`;
  $('eNotes').textContent=$('notes').value;
 }
 function estimateText(){
- const c=getCalc(),featureLines=c.fs.map(f=>'• '+f.name).join('\n');
+ const c=getCalc(),title=customerTitle(c);
+ const included=c.p.noCore
+  ?(c.fs.length?c.fs.map(f=>'• '+f.name).join('\n'):'• Selected services')
+  :['• '+c.p.name,...c.fs.map(f=>'• '+f.name)].join('\n');
  return `DS AUTOMATIONS
 ESTIMATE ${$('estimateNo').value}
 
 Prepared for: ${$('client').value||'Prospective Client'}
-Project: ${$('project').value||c.p.name}
+Project: ${$('project').value||title}
 
-${c.p.name}
+${title}
 ${$('scope').value}
 
 Included:
-• ${c.p.name}
-${featureLines}${c.setup>0?'\n• Setup / Onboarding: '+money(c.setup):''}
+${included}${c.setup>0?'\n• Setup / Onboarding: '+money(c.setup):''}
 
 Project Investment: ${money(c.final)}
 Deposit to Begin (${n('depositPct')}%): ${money(c.deposit)}
@@ -408,7 +559,7 @@ Your Business Is My Business`;
 function emailEstimate(){
  const email=$('customerEmail').value.trim();
  if(!email){alert('Enter the customer email address first.');return}
- const subject=encodeURIComponent(`DS Automations Estimate ${$('estimateNo').value} — ${$('project').value||getCalc().p.name}`);
+ const subject=encodeURIComponent(`DS Automations Estimate ${$('estimateNo').value} — ${$('project').value||customerTitle(getCalc())}`);
  const body=encodeURIComponent(estimateText());
  window.location.href=`mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
 }
@@ -421,7 +572,7 @@ function storeHistory(a){localStorage.setItem(HISTORY_KEY,JSON.stringify(a))}
 function saveEstimate(){
  const c=calculate();
  persistDraft();
- const rec={id:Date.now(),estimateNo:$('estimateNo').value,date:$('estimateDate').value,client:$('client').value,email:$('customerEmail').value,project:$('project').value||c.p.name,service:c.p.name,total:c.final,deposit:c.deposit,monthly:c.monthly,monthlyPlan:c.mp.name,hours:c.totalHours,rate:c.rate,features:c.fs.map(f=>f.name),scope:$('scope').value,notes:$('notes').value,validUntil:$('validUntil').value};
+ const rec={id:Date.now(),estimateNo:$('estimateNo').value,date:$('estimateDate').value,client:$('client').value,email:$('customerEmail').value,project:$('project').value||customerTitle(c),service:customerTitle(c),total:c.final,deposit:c.deposit,monthly:c.monthly,monthlyPlan:c.mp.name,hours:c.totalHours,rate:c.rate,features:c.fs.map(f=>f.name),scope:$('scope').value,notes:$('notes').value,validUntil:$('validUntil').value};
  const a=loadHistory();a.unshift(rec);storeHistory(a);renderHistory();alert('Estimate saved in this browser.');
 }
 function renderHistory(){
@@ -439,22 +590,22 @@ function exportCSV(){
 }
 function resetAll(){
  skipAutosave=true;
- selectedPreset='leadcrm';selectedMonthly='none';
+ selectedPreset='mix';selectedMonthly='none';
  $('client').value='';$('customerEmail').value='';$('customerPhone').value='';$('project').value='';
- $('rate').value=200;$('hours').value=15;$('direct').value=0;$('extraProfit').value=0;$('override').value='';$('monthlyOverride').value='';$('setupFee').value=0;$('depositPct').value=50;$('delivery').value='14 calendar days';$('revisions').value=2;
- $('scope').value='Modernized website, clear services, mobile-first experience, lead capture, launch setup, and selected features below.';
+ $('rate').value=200;$('hours').value=0;$('direct').value=0;$('extraProfit').value=0;$('override').value='';$('monthlyOverride').value='';$('setupFee').value=0;$('depositPct').value=50;$('delivery').value='14 calendar days';$('revisions').value=2;
+ $('scope').value='Work listed on this estimate. Includes the selected core project if one was chosen, plus any additional services shown as included items.';
  $('notes').value='Project timeline begins after deposit, required content, access, branding materials, and approvals are received. Delayed client feedback or scope changes may extend the delivery window.';
  $('estimateNo').value=newEstimateNo();const today=new Date().toISOString().slice(0,10);$('estimateDate').value=today;$('validUntil').value=addDays(today,14);
- renderMonthly();choosePreset('leadcrm');skipAutosave=false;persistDraft();
+ renderMonthly();choosePreset('mix');skipAutosave=false;persistDraft();
 }
 
-renderPresets();renderFeatures();renderMonthly();
+renderPresets();renderAddons();renderMonthly();
 FIELD_IDS.forEach(id=>$(id).addEventListener('input',()=>{calculate();scheduleDraftSave()}));
 const existing=loadDraft();
 if(existing){applyDraft(existing);markSaved()}
 else{
   const today=new Date().toISOString().slice(0,10);$('estimateNo').value=newEstimateNo();$('estimateDate').value=today;$('validUntil').value=addDays(today,14);
-  choosePreset('leadcrm');
+  choosePreset('mix');
 }
 renderHistory();calculate();
 window.addEventListener('beforeunload',persistDraft);
